@@ -9,7 +9,9 @@ function handleBsonError(res, error) {
   return res.status(500).json({ message: 'Error interno del servidor.' });
 }
 
-// Usuario autenticado crea un restaurante (queda pendiente)
+/**
+ * [Admin] Crea un restaurante
+ */
 async function create(req, res) {
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
@@ -18,9 +20,8 @@ async function create(req, res) {
 
   try {
     const restaurantData = req.body;
-    const userId = req.user._id; // Viene del middleware 'isAuthenticated'
     
-    const result = await restaurantService.createRestaurant(restaurantData, userId);
+    const result = await restaurantService.createRestaurant(restaurantData);
 
     if (result.error) {
       return res.status(400).json({ message: result.error });
@@ -32,38 +33,28 @@ async function create(req, res) {
   }
 }
 
-// Admin aprueba un restaurante
-async function approve(req, res) {
-  try {
-    const { id } = req.params;
-    const result = await restaurantService.approveRestaurant(id);
-
-    if (result.error) {
-      return res.status(404).json({ message: result.error });
-    }
-    
-    return res.status(200).json(result);
-  } catch (error) {
-    return handleBsonError(res, error);
-  }
-}
-
-// Público obtiene lista de restaurantes (solo aprobados)
+/**
+ * [Usuario] Obtiene lista de restaurantes
+ */
 async function getAll(req, res) {
   try {
     const { categoryId } = req.query; // Para filtrar por categoría
-    const restaurants = await restaurantService.getAllApprovedRestaurants(categoryId);
+    // Llama a la nueva función del servicio
+    const restaurants = await restaurantService.getAllRestaurants(categoryId); 
     return res.status(200).json(restaurants);
   } catch (error) {
      return handleBsonError(res, error); // Por si el categoryId es inválido
   }
 }
 
-// Público obtiene un restaurante (solo si está aprobado)
+/**
+ * [Usuario] Obtiene un restaurante
+ */
 async function getOne(req, res) {
   try {
     const { id } = req.params;
-    const result = await restaurantService.getApprovedRestaurantById(id);
+    // Llama a la nueva función del servicio
+    const result = await restaurantService.getRestaurantById(id); 
     
     if (result.error) {
       return res.status(404).json({ message: result.error });
@@ -75,7 +66,7 @@ async function getOne(req, res) {
   }
 }
 
-// Admin actualiza un restaurante
+
 async function update(req, res) {
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
@@ -97,7 +88,9 @@ async function update(req, res) {
   }
 }
 
-// Admin elimina un restaurante
+/**
+ * [Admin] Elimina un restaurante
+ */
 async function deleteOne(req, res) {
   try {
     const { id } = req.params;
@@ -115,7 +108,6 @@ async function deleteOne(req, res) {
 
 module.exports = {
   create,
-  approve,
   getAll,
   getOne,
   update,
