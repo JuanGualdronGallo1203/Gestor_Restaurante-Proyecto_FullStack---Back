@@ -6,44 +6,41 @@ function getReviewCollection() {
   return db.collection('reviews');
 }
 
-/**
- * Crea una reseña. Acepta una sesión opcional.
- */
-async function createReview(reviewData, session) {
-  const result = await getReviewCollection().insertOne(reviewData, { session });
+
+ //Crea una reseña.
+ 
+async function createReview(reviewData) {
+  const result = await getReviewCollection().insertOne(reviewData);
   return { _id: result.insertedId, ...reviewData };
 }
 
-/**
- * Busca una reseña por su ID.
- */
-async function findReviewById(id, session) {
-  return await getReviewCollection().findOne({ _id: new ObjectId(id) }, { session });
+
+//Busca una reseña por su ID.
+
+async function findReviewById(id) {
+  return await getReviewCollection().findOne({ _id: new ObjectId(id) });
 }
 
-/**
- * Actualiza una reseña (ej. un like). Acepta una sesión opcional.
- */
-async function updateReview(id, updates, session) {
+ // Actualiza una reseña (solo el dueño).
+async function updateReview(id, updates) {
   const result = await getReviewCollection().updateOne(
     { _id: new ObjectId(id) },
-    updates,
-    { session }
+    { $set: updates }
   );
   return result.modifiedCount > 0;
 }
 
 /**
- * Elimina una reseña. Acepta una sesión opcional.
+ * Elimina una reseña.
  */
-async function deleteReview(id, session) {
-  const result = await getReviewCollection().deleteOne({ _id: new ObjectId(id) }, { session });
+async function deleteReview(id) {
+  const result = await getReviewCollection().deleteOne({ _id: new ObjectId(id) });
   return result.deletedCount > 0;
 }
 
-/**
- * Obtiene todas las reseñas de un restaurante.
- */
+
+// Obtiene todas las reseñas de un restaurante.
+
 async function findReviewsByRestaurant(restaurantId) {
   return await getReviewCollection().find({ 
     restaurantId: new ObjectId(restaurantId) 
@@ -53,7 +50,7 @@ async function findReviewsByRestaurant(restaurantId) {
 module.exports = {
   createReview,
   findReviewById,
-  updateReview,
+  updateReview, 
   deleteReview,
   findReviewsByRestaurant,
 };
