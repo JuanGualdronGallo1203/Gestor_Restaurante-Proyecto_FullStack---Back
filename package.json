@@ -1,0 +1,42 @@
+{
+  "name": "gestor_restaurante-proyecto_fullstack---back",
+  "version": "1.0.0",
+  "description": "",
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node menu.js",
+    "dev": "nodemon menu.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/JuanGualdronGallo1203/Gestor_Restaurante-Proyecto_FullStack---Back.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/JuanGualdronGallo1203/Gestor_Restaurante-Proyecto_FullStack---Back/issues"
+  },
+  "homepage": "https://github.com/JuanGualdronGallo1203/Gestor_Restaurante-Proyecto_FullStack---Back#readme",
+  "dependencies": {
+    "bcrypt": "6.0.0",
+    "cors": "2.8.5",
+    "dotenv": "17.2.3",
+    "express": "5.1.0",
+    "express-rate-limit": "8.2.0",
+    "express-validator": "7.3.0",
+    "jsonwebtoken": "9.0.2",
+    "mongodb": "6.20.0",
+    "passport": "0.7.0",
+    "passport-jwt": "4.0.1",
+    "semver": "7.7.3",
+    "swagger-ui-express": "5.0.1"
+  },
+  "devDependencies": {
+    "nodemon": "3.1.10"
+  }
+
+  
+}
+
