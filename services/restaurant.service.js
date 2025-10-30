@@ -1,8 +1,8 @@
 const restaurantRepository = require('../repositories/restaurant.repository');
-const categoryRepository = require('../repositories/category.repository'); // Para validar la categoría
+const categoryRepository = require('../repositories/category.repository');
 const { ObjectId } = require('mongodb');
 
-async function createRestaurant(restaurantData, userId) {
+async function createRestaurant(restaurantData) {
   // 1. Validar que la categoría exista
   const category = await categoryRepository.findCategoryById(restaurantData.categoryId);
   if (!category) {
@@ -15,49 +15,34 @@ async function createRestaurant(restaurantData, userId) {
     return { error: 'Ya existe un restaurante con ese nombre.' };
   }
 
-  // 3. Preparar el objeto final
+  // 3. Preparar el objeto final (ahora es simple)
   const newRestaurant = {
     ...restaurantData,
-    categoryId: new ObjectId(restaurantData.categoryId), // Aseguramos que sea un ObjectId
-    ownerId: new ObjectId(userId), // El usuario que lo creó
-    status: 'pendiente', // Estado inicial según requisitos
+    categoryId: new ObjectId(restaurantData.categoryId),
     createdAt: new Date(),
   };
 
   return await restaurantRepository.createRestaurant(newRestaurant);
 }
 
-async function approveRestaurant(id) {
-  const restaurant = await restaurantRepository.findRestaurantById(id);
-  if (!restaurant) {
-    return { error: 'Restaurante no encontrado.' };
-  }
-
-  const wasUpdated = await restaurantRepository.updateRestaurant(id, { status: 'aprobado' });
-  if (!wasUpdated) {
-    return { error: 'El restaurante ya estaba aprobado o no se pudo actualizar.' };
-  }
-  
-  return { message: 'Restaurante aprobado exitosamente.' };
-}
-
-async function getAllApprovedRestaurants(categoryId) {
+async function getAllRestaurants(categoryId) {
   const filter = {};
   if (categoryId) {
     filter.categoryId = new ObjectId(categoryId);
   }
-  return await restaurantRepository.findAllApprovedRestaurants(filter);
+  return await restaurantRepository.findAllApprovedRestaurants(filter); // Nota: Debemos renombrar esta función en el repo.
 }
 
-async function getApprovedRestaurantById(id) {
+
+async function getRestaurantById(id) {
   const restaurant = await restaurantRepository.findRestaurantById(id);
   
-  // El público solo puede ver restaurantes aprobados
-  if (!restaurant || restaurant.status !== 'aprobado') {
-    return { error: 'Restaurante no encontrado o no está aprobado.' };
+  if (!restaurant) {
+    return { error: 'Restaurante no encontrado.' };
   }
   return restaurant;
 }
+
 
 async function updateRestaurant(id, updates) {
   const wasUpdated = await restaurantRepository.updateRestaurant(id, updates);
@@ -66,6 +51,7 @@ async function updateRestaurant(id, updates) {
   }
   return { _id: id, ...updates };
 }
+
 
 async function deleteRestaurant(id) {
   const wasDeleted = await restaurantRepository.deleteRestaurant(id);
@@ -77,9 +63,8 @@ async function deleteRestaurant(id) {
 
 module.exports = {
   createRestaurant,
-  approveRestaurant,
-  getAllApprovedRestaurants,
-  getApprovedRestaurantById,
+  getAllRestaurants, 
+  getRestaurantById, 
   updateRestaurant,
   deleteRestaurant,
 };
