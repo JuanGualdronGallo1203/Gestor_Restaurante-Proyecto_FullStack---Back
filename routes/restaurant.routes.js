@@ -13,14 +13,14 @@ const { isAdmin, isAuthenticated } = require('../middlewares/auth.middleware');
  * @desc    Obtener lista de restaurantes
  * @access  Usuario Autenticado
  */
-router.get('/', isAuthenticated, restaurantController.getAll); // <-- CAMBIADO
+router.get('/', isAuthenticated, restaurantController.getAll);
 
 /**
  * @route   GET /api/v1/restaurants/:id
  * @desc    Obtener un restaurante por ID
  * @access  Usuario Autenticado
  */
-router.get('/:id', isAuthenticated, restaurantController.getOne); // <-- CAMBIADO
+router.get('/:id', isAuthenticated, restaurantController.getOne);
 
 
 // --- Rutas de Administrador (Requiere rol de admin) ---
@@ -32,20 +32,16 @@ router.get('/:id', isAuthenticated, restaurantController.getOne); // <-- CAMBIAD
  */
 router.post(
   '/',
-  isAdmin, // <-- CAMBIADO
+  isAdmin,
   [
     body('name', 'El nombre es requerido').not().isEmpty(),
     body('description', 'La descripción es requerida').not().isEmpty(),
     body('categoryId', 'El ID de la categoría es requerido').isMongoId(),
+    // --- ¡LÍNEA AÑADIDA! ---
+    body('imageUrl', 'Debe ser una URL válida').optional().isURL() 
   ],
   restaurantController.create
 );
-
-/**
- * @route   PATCH /api/v1/restaurants/:id/approve
- * @desc    (RUTA ELIMINADA)
- */
-// router.patch('/:id/approve', isAdmin, restaurantController.approve); // <-- ELIMINADO
 
 /**
  * @route   PUT /api/v1/restaurants/:id
@@ -59,6 +55,8 @@ router.put(
     body('name', 'El nombre es requerido').optional().not().isEmpty(),
     body('description', 'La descripción es requerida').optional().not().isEmpty(),
     body('categoryId', 'El ID de la categoría es requerido').optional().isMongoId(),
+    // --- ¡LÍNEA AÑADIDA! ---
+    body('imageUrl', 'Debe ser una URL válida').optional().isURL()
   ],
   restaurantController.update
 );
