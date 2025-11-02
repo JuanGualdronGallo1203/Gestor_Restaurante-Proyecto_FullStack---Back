@@ -1,12 +1,11 @@
+// services/category.service.js
 const categoryRepository = require('../repositories/category.repository');
 
 async function createCategory(categoryData) {
-  // Lógica de negocio: No permitir categorías duplicadas
   const existingCategory = await categoryRepository.findCategoryByName(categoryData.name);
   if (existingCategory) {
     return { error: 'Ya existe una categoría con ese nombre.' };
   }
-  
   return await categoryRepository.createCategory(categoryData);
 }
 
@@ -14,6 +13,10 @@ async function getAllCategories() {
   return await categoryRepository.getAllCategories();
 }
 
+/**
+ * ¡NUEVO!
+ * Obtiene una categoría por su ID.
+ */
 async function getCategoryById(id) {
   const category = await categoryRepository.findCategoryById(id);
   if (!category) {
@@ -23,14 +26,12 @@ async function getCategoryById(id) {
 }
 
 async function updateCategory(id, updates) {
-  // Opcional: verificar si el nuevo nombre ya existe (si se está actualizando el nombre)
   if (updates.name) {
     const existingCategory = await categoryRepository.findCategoryByName(updates.name);
     if (existingCategory && existingCategory._id.toString() !== id) {
       return { error: 'Ya existe otra categoría con ese nombre.' };
     }
   }
-
   const wasUpdated = await categoryRepository.updateCategory(id, updates);
   if (!wasUpdated) {
     return { error: 'Categoría no encontrada o datos idénticos.' };
@@ -49,7 +50,7 @@ async function deleteCategory(id) {
 module.exports = {
   createCategory,
   getAllCategories,
-  getCategoryById,
+  getCategoryById, // <-- Añadido
   updateCategory,
   deleteCategory,
 };
