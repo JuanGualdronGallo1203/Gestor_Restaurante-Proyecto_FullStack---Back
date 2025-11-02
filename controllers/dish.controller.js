@@ -3,13 +3,18 @@ const dishService = require('../services/dish.service');
 
 // Función de ayuda para manejar errores de ID BSON
 function handleBsonError(res, error) {
+  // Imprime el error en la terminal del backend
+  console.error(error); 
+  
   if (error.name === 'BSONError') {
     return res.status(400).json({ message: 'El ID proporcionado es inválido.' });
   }
   return res.status(500).json({ message: 'Error interno del servidor.' });
 }
 
-// Admin crea un plato para un restaurante
+/**
+ * [Admin] Crea un plato para un restaurante
+ */
 async function create(req, res) {
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
@@ -32,7 +37,9 @@ async function create(req, res) {
   }
 }
 
-// Público obtiene los platos de un restaurante
+/**
+ * [Usuario/Admin] Obtiene los platos de un restaurante
+ */
 async function getAllByRestaurant(req, res) {
   try {
     const { restaurantId } = req.params; // Obtenido de la URL
@@ -48,7 +55,28 @@ async function getAllByRestaurant(req, res) {
   }
 }
 
-// Admin actualiza un plato
+/**
+ * [Admin] Obtiene un platillo por su ID
+ * (Función añadida para el modal de "Editar")
+ */
+async function getOne(req, res) {
+  try {
+    const { id } = req.params; // ID del platillo
+    const result = await dishService.getDishById(id);
+    
+    if (result.error) {
+      return res.status(404).json({ message: result.error });
+    }
+    
+    return res.status(200).json(result);
+  } catch (error) {
+    return handleBsonError(res, error);
+  }
+}
+
+/**
+ * [Admin] Actualiza un platillo
+ */
 async function update(req, res) {
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
@@ -70,7 +98,9 @@ async function update(req, res) {
   }
 }
 
-// Admin elimina un plato
+/**
+ * [Admin] Elimina un platillo
+ */
 async function deleteOne(req, res) {
   try {
     const { id } = req.params; // ID del plato
@@ -89,6 +119,7 @@ async function deleteOne(req, res) {
 module.exports = {
   create,
   getAllByRestaurant,
+  getOne, // <-- Asegúrate de que esté exportada
   update,
   deleteOne,
 };

@@ -1,3 +1,4 @@
+// /repositories/review.repository.js
 const { getDb } = require('../config/db');
 const { ObjectId } = require('mongodb');
 
@@ -6,22 +7,15 @@ function getReviewCollection() {
   return db.collection('reviews');
 }
 
-
- //Crea una reseña.
- 
 async function createReview(reviewData) {
   const result = await getReviewCollection().insertOne(reviewData);
   return { _id: result.insertedId, ...reviewData };
 }
 
-
-//Busca una reseña por su ID.
-
 async function findReviewById(id) {
   return await getReviewCollection().findOne({ _id: new ObjectId(id) });
 }
 
- // Actualiza una reseña (solo el dueño).
 async function updateReview(id, updates) {
   const result = await getReviewCollection().updateOne(
     { _id: new ObjectId(id) },
@@ -30,21 +24,41 @@ async function updateReview(id, updates) {
   return result.modifiedCount > 0;
 }
 
-/**
- * Elimina una reseña.
- */
 async function deleteReview(id) {
   const result = await getReviewCollection().deleteOne({ _id: new ObjectId(id) });
   return result.deletedCount > 0;
 }
 
-
-// Obtiene todas las reseñas de un restaurante.
-
+/**
+ * ¡ACTUALIZADO! 
+ * Ahora usa $lookup para "unir" los datos del usuario.
+ */
 async function findReviewsByRestaurant(restaurantId) {
-  return await getReviewCollection().find({ 
-    restaurantId: new ObjectId(restaurantId) 
-  }).toArray();
+  return await getReviewCollection().aggregate([
+    { $match: { restaurantId: new ObjectId(restaurantId) } },
+    { $sort: { createdAt: -1 } }, // Ordenar por más nuevo
+    {
+      $lookup: {
+        from: 'users',         // La colección con la que unimos
+        localField: 'userId',    // El campo en 'reviews'
+        foreignField: '_id',     // El campo en 'users'
+        as: 'user'             // El nombre del nuevo array
+      }
+    },
+    { $unwind: { path: '$user', preserveNullAndEmptyArrays: true } }, // Convertir el array 'user' en un objeto
+    {
+      $project: {
+        // Devolvemos todo...
+        comment: 1,
+        rating: 1,
+        createdAt: 1,
+        userId: 1,
+        // ...pero del usuario, solo el 'username' (para no enviar la contraseña)
+        'user.username': 1,
+        'user._id': 1
+      }
+    }
+  ]).toArray();
 }
 
 module.exports = {
