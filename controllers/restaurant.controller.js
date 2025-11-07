@@ -5,7 +5,7 @@ const restaurantService = require('../services/restaurant.service');
 
 // Función de ayuda para manejar errores
 function handleControllerError(res, error) {
-  console.error(error); // <-- ¡LA LÍNEA QUE FALTABA!
+  console.error(error); 
   if (error.name === 'BSONError') {
     return res.status(400).json({ message: 'El ID proporcionado es inválido.' });
   }
